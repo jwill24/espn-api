@@ -50,19 +50,25 @@ def sendDailyReport(player_list):
     for up in updated_players: names.append(up.name) # make a list of player names
     
     for player in player_list:
-        ind = names.index(player[0]) # get the index of the player
+        try: ind = names.index(player[0]) # get the index of the player
+        except: continue
+        
         try: player_total = updated_players[ind].stats['002021']['total'] # get the players updated total stats
         except: player_total = {'PTS': 0.0, 'BLK': 0.0, 'STL': 0.0, 'AST': 0.0, 'REB': 0.0, 'PF': 0.0, 'TO': 0.0, 'FGM': 0.0, 'FGA': 0.0, 'FTM': 0.0, 'FTA': 0.0, 'GP': 0.0} # if they haven't played, set stats to 0
 
+        print('Player name:', player[0], 'Old GP:', player[1]['GP'], 'New GP:', player_total['GP'])
+        
         if player_total['GP'] > player[1]['GP']: # check if the player played a game today
-            fanPoints = calculateFantasyPoints(player[1], player_total) 
-            if fanPoints >= 0: info.append([player[0], fanPoints]) # if fanPoints are above the threshold, add the player to the report
+            fanPoints = calculateFantasyPoints(player[1], player_total)
+            print('--> fantasy points:', fanPoints)
+            if fanPoints >= 15: info.append([player[0], fanPoints]) # if fanPoints are above the threshold, add the player to the report
 
     information = '----- Daily FA Update -----\n\n'
     for item in info: information += '%s had %i fantasy points\n' % (item[0], item[1])
 
     resource.push(information) # push the notification
     #print(information)
+    print('\nDaily report sent!\n')
     pl = buildPlayerList() 
     return pl # return the updated player list for tomorrow
 
@@ -137,7 +143,7 @@ while True:
     lt = time.localtime()
     #print()
     #print(lt.tm_hour,lt.tm_min,lt.tm_sec)
-    if (lt.tm_hour == 1 and lt.tm_min == 00) and (lt.tm_sec >= 0 and lt.tm_sec <= 15): # if the time is 1:00 am
+    if (lt.tm_hour == 5 and lt.tm_min == 00) and (lt.tm_sec >= 0 and lt.tm_sec <= 15): # if the time is 5:00 am
         player_list = sendDailyReport(player_list) # send the daily report
 
     # Get the duration of time the code has been running and print it
